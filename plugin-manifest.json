@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "pluginId": "starfield-renderer",
+  "pluginType": "visualization",
+  "vendorId": "the-lobsternaut",
+  "name": "Starfield & Star Tracker Plugin",
+  "version": "0.1.0",
+  "description": "Accurate star rendering for CesiumJS with GLSL shaders (magnitude-correct brightness, B-V color mapping, proper motion, scintillation). Includes star tracker simulation (TRIAD, QUEST, ESOQ2 attitude determination) and lost-in-space triangle matching. Based on OrbPro2-ModSim star catalog.",
+  "license": "Apache-2.0",
+  "capabilities": {
+    "parse": true,
+    "convert": true,
+    "process": true,
+    "render": true,
+    "streaming": false
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "epoch",
+        "description": "Current epoch for proper motion correction (JD or ISO8601)",
+        "schema": "Epoch",
+        "required": false
+      },
+      {
+        "name": "attitude",
+        "description": "Spacecraft attitude quaternion for star tracker FOV",
+        "schema": "Attitude",
+        "required": false
+      }
+    ],
+    "outputs": [
+      {
+        "name": "star_catalog",
+        "description": "Star positions/magnitudes/colors for rendering",
+        "schema": "StarCatalog",
+        "fileId": "$STR"
+      },
+      {
+        "name": "attitude_solution",
+        "description": "Determined attitude from star tracker observation",
+        "schema": "Attitude",
+        "fileId": "$ATT"
+      }
+    ]
+  },
+  "catalogs": [
+    "Hipparcos (118,218 stars)",
+    "Yale Bright Star Catalog (9,110 stars, V<6.5)",
+    "Tycho-2 (2.5M stars, for deep zoom)"
+  ],
+  "shaders": {
+    "star_field.vert": "Vertex shader: J2000→apparent, magnitude→size, proper motion",
+    "star_field.frag": "Fragment shader: B-V→RGB, Airy disk PSF, atmospheric scintillation",
+    "constellation_lines.vert": "Constellation boundary lines vertex shader",
+    "constellation_lines.frag": "Constellation boundary lines fragment shader"
+  },
+  "attitudeMethods": ["TRIAD", "QUEST", "ESOQ2", "LostInSpace"],
+  "references": [
+    "ESA Hipparcos Catalogue (1997)",
+    "Shuster, M.D. (1981) 'Three-Axis Attitude Determination from Vector Observations'",
+    "Mortari, D. (2004) 'ESOQ2 Single-Point Algorithm for Fast Optimal Spacecraft Attitude Determination'"
+  ],
+  "wasm": {
+    "exportName": "STARFIELD_WASM",
+    "initialMemoryMB": 16,
+    "maxMemoryMB": 64
+  }
+}
